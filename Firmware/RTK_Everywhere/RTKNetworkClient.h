@@ -3,6 +3,22 @@
 
 extern uint8_t networkGetType(uint8_t user);
 
+/*
+// Replace weak functions in mbedtls
+IRAM_ATTR void *esp_mbedtls_mem_calloc(size_t n, size_t size)
+{
+    extern bool RTK_CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC;
+    if (RTK_CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC)
+        return heap_caps_calloc(n, size, MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
+    else
+        return heap_caps_calloc(n, size, MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT);
+}
+IRAM_ATTR void esp_mbedtls_mem_free(void *ptr)
+{
+    return heap_caps_free(ptr);
+}
+*/
+
 class RTKNetworkClient : public NetworkClient
 {
   protected:
