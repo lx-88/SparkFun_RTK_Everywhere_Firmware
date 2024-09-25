@@ -50,7 +50,7 @@ var sendDataTimeout;
 var checkNewFirmwareTimeout;
 var getNewFirmwareTimeout;
 
-const numCorrectionsSources = 7;
+const numCorrectionsSources = 8;
 var correctionsSourceNames = [];
 var correctionsSourcePriorities = [];
 
