@@ -679,30 +679,30 @@ function validateFields() {
     }
 
     if (ge("enableNtripServer").checked == true) {
-        checkElementString("ntripServerCasterHost_0", 1, 49, "Must be 1 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementValue("ntripServerCasterPort_0", 1, 99999, "Must be 1 to 99999", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServer_CasterUser_0", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServer_CasterUserPW_0", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServerMountPoint_0", 1, 49, "Must be 1 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerMountPointPW_0", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerCasterHost_1", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementValue("ntripServerCasterPort_1", 0, 99999, "Must be 0 to 99999", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServer_CasterUser_1", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServer_CasterUserPW_1", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServerMountPoint_1", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerMountPointPW_1", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerCasterHost_2", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementValue("ntripServerCasterPort_2", 0, 99999, "Must be 0 to 99999", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServer_CasterUser_2", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServer_CasterUserPW_2", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServerMountPoint_2", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerMountPointPW_2", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerCasterHost_3", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementValue("ntripServerCasterPort_3", 0, 99999, "Must be 0 to 99999", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServer_CasterUser_3", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServer_CasterUserPW_3", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfig");
-        checkElementString("ntripServerMountPoint_3", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
-        checkElementString("ntripServerMountPointPW_3", 0, 49, "Must be 0 to 49 characters", "collapseBaseConfigNTRIP");
+        checkElementString("ntripServerCasterHost_0", 1, 49, "Must be 1 to 49 characters", "ntripServerConfig0");
+        checkElementValue("ntripServerCasterPort_0", 1, 99999, "Must be 1 to 99999", "ntripServerConfig0");
+        checkElementString("ntripServerCasterUser_0", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig0");
+        checkElementString("ntripServerCasterUserPW_0", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig0");
+        checkElementString("ntripServerMountPoint_0", 1, 49, "Must be 1 to 49 characters", "ntripServerConfig0");
+        checkElementString("ntripServerMountPointPW_0", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig0");
+        checkElementString("ntripServerCasterHost_1", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig1");
+        checkElementValue("ntripServerCasterPort_1", 0, 99999, "Must be 0 to 99999", "ntripServerConfig1");
+        checkElementString("ntripServerCasterUser_1", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig1");
+        checkElementString("ntripServerCasterUserPW_1", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig1");
+        checkElementString("ntripServerMountPoint_1", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig1");
+        checkElementString("ntripServerMountPointPW_1", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig1");
+        checkElementString("ntripServerCasterHost_2", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig2");
+        checkElementValue("ntripServerCasterPort_2", 0, 99999, "Must be 0 to 99999", "ntripServerConfig2");
+        checkElementString("ntripServerCasterUser_2", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig2");
+        checkElementString("ntripServerCasterUserPW_2", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig2");
+        checkElementString("ntripServerMountPoint_2", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig2");
+        checkElementString("ntripServerMountPointPW_2", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig2");
+        checkElementString("ntripServerCasterHost_3", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig3");
+        checkElementValue("ntripServerCasterPort_3", 0, 99999, "Must be 0 to 99999", "ntripServerConfig3");
+        checkElementString("ntripServerCasterUser_3", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig3");
+        checkElementString("ntripServerCasterUserPW_3", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig3");
+        checkElementString("ntripServerMountPoint_3", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig3");
+        checkElementString("ntripServerMountPointPW_3", 0, 49, "Must be 0 to 49 characters", "ntripServerConfig3");
     }
     // Don't overwrite with the defaults here. User may want to disable NTRIP but not lose the existing settings.
     // else {
@@ -995,10 +995,25 @@ function checkElementString(id, min, max, errorText, collapseID) {
     value = ge(id).value;
     if ((value.length < min) || (value.length > max)) {
         ge(id + 'Error').innerHTML = 'Error: ' + errorText;
-        if (collapseID == "collapseBaseConfigNTRIP") {
+        if (collapseID == "ntripServerConfig0") {
             ge("collapseBaseConfig").classList.add('show');
             ge("ntripServerConfig").classList.add('show');
             ge("ntripServerConfig0").classList.add('show');
+        }
+        else if (collapseID == "ntripServerConfig1") {
+            ge("collapseBaseConfig").classList.add('show');
+            ge("ntripServerConfig").classList.add('show');
+            ge("ntripServerConfig1").classList.add('show');
+        }
+        else if (collapseID == "ntripServerConfig2") {
+            ge("collapseBaseConfig").classList.add('show');
+            ge("ntripServerConfig").classList.add('show');
+            ge("ntripServerConfig2").classList.add('show');
+        }
+        else if (collapseID == "ntripServerConfig3") {
+            ge("collapseBaseConfig").classList.add('show');
+            ge("ntripServerConfig").classList.add('show');
+            ge("ntripServerConfig3").classList.add('show');
         }
         else
             ge(collapseID).classList.add('show');
