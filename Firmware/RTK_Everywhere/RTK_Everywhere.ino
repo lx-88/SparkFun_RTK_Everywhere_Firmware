@@ -181,6 +181,7 @@ const uint16_t HTTPS_PORT = 443;                                                
 #endif // COMPILE_CELLULAR
 
 #include "settings.h"
+#include "prototypes.h" // Forward declarations for PlatformIO
 #include <esp_mac.h> // MAC address support
 
 #define MAX_CPU_CORES 2
@@ -301,6 +302,7 @@ const int gpioExpanderNumSwitches = 8;
 // I2C for GNSS, battery gauge, display
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #include "icons.h"
+#include "prototypes_display.h" // Forward declarations needing icon types
 #include <Wire.h> //Built-in
 #include <vector> //Needed for icons etc.
 TwoWire *i2c_0 = nullptr;
@@ -331,7 +333,7 @@ const int COMMON_COORDINATES_MAX_STATIONS = 50; // Record up to 50 ECEF and Geod
 #include <ESP32Time.h> //http://librarymanager/All#ESP32Time by FBiego
 ESP32Time rtc;
 unsigned long syncRTCInterval = 1000; // To begin, sync RTC every second. Interval can be increased once sync'd.
-void printTimeStamp(bool always = false); // Header
+// void printTimeStamp(bool always = false); // Prototype moved to prototypes.h
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 // microSD Interface

@@ -50,7 +50,7 @@ typedef struct
 // Rate = Reports per second
 const um980Msg umMessagesNMEA[] = {
     // NMEA
-    {"GPDTM", 0}, {"GPGBS", 0},   {"GPGGA", 0.5}, {"GPGLL", 0}, {"GPGNS", 0},
+    {"GPDTM", 0}, {"GPGBS", 0},   {"GPGGA", 1}, {"GPGLL", 0}, {"GPGNS", 0},
 
     {"GPGRS", 0}, {"GPGSA", 0.5}, {"GPGST", 0.5}, {"GPGSV", 1}, {"GPRMC", 0.5},
 
@@ -127,6 +127,9 @@ class GNSS_UM980 : GNSS
 
     // Turn on all the enabled RTCM Base messages on COM3
     bool enableRTCMBase();
+
+    // Turn on Unicore binary raw data messages on COM3
+    bool enableUnicoreBinaryRawMessages();
 
     uint8_t getActiveNmeaMessageCount();
 
@@ -406,6 +409,9 @@ class GNSS_UM980 : GNSS
 
     // Control the messages that get broadcast over Bluetooth and logged (if enabled)
     void menuMessages();
+
+    // Control raw data output settings (binary messages and ephemeris)
+    void menuRawData();
 
     // Print the module type and firmware version
     void printModuleInfo();

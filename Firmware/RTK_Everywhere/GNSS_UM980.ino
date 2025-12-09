@@ -205,6 +205,12 @@ bool GNSS_UM980::configureBase()
     // Save the current configuration into non-volatile memory (NVM)
     response &= _um980->saveConfiguration();
 
+    // Enable binary raw messages LAST, after all other configuration is complete and saved.
+    // OBSVMB messages are very large (>3KB) and will flood the serial port, potentially
+    // corrupting any remaining configuration commands if enabled earlier.
+    if (settings.enableUnicoreBinaryRawMessages)
+        response &= enableUnicoreBinaryRawMessages();
+
     if (response == false)
     {
         systemPrintln("UM980 Base failed to configure");
@@ -234,6 +240,16 @@ bool GNSS_UM980::configureOnce()
       Enable selected NMEA messages on COM3
       Enable selected RTCM messages on COM3
 */
+
+    // Binary raw message settings affect NMEA rates and ephemeris output
+    // Always reconfigure when these features are enabled to ensure proper rates
+    if (settings.enableUnicoreBinaryRawMessages && settings.gnssConfiguredOnce)
+    {
+        systemPrintln("UM980 binary raw messages enabled, forcing reconfiguration");
+        settings.gnssConfiguredOnce = false;
+        settings.gnssConfiguredBase = false;
+        settings.gnssConfiguredRover = false;
+    }
 
     // // If our settings haven't changed, trust GNSS's settings
     if (settings.gnssConfiguredOnce)
@@ -387,6 +403,7 @@ bool GNSS_UM980::configureRover()
 
     // Only turn on messages, do not turn off messages. We assume the caller has UNLOG or similar.
     response &= enableRTCMRover();
+
     // TODO consider reducing the GSV sentence to 1/4 of the GPGGA setting
 
     // Only turn on messages, do not turn off messages. We assume the caller has UNLOG or similar.
@@ -394,6 +411,12 @@ bool GNSS_UM980::configureRover()
 
     // Save the current configuration into non-volatile memory (NVM)
     response &= _um980->saveConfiguration();
+
+    // Enable binary raw messages LAST, after all other configuration is complete and saved.
+    // OBSVMB messages are very large (>3KB) and will flood the serial port, potentially
+    // corrupting any remaining configuration commands if enabled earlier.
+    if (settings.enableUnicoreBinaryRawMessages)
+        response &= enableUnicoreBinaryRawMessages();
 
     if (response == false)
     {
@@ -511,9 +534,32 @@ bool GNSS_UM980::enableNMEA()
         // has UNLOG or similar.
         if (settings.um980MessageRatesNMEA[messageNumber] > 0)
         {
+            // Reduce NMEA rates when binary raw messages are enabled to prevent buffer overflow
+            // Match OBSVMB rate (0.2Hz = 5 seconds) to reduce COM3 traffic
+            // Note: settings stores Hz, but UM980 expects seconds between messages
+            // Exception: GPGGA is not throttled - needed for position updates at 1Hz
+            float nmeaRateHz = settings.um980MessageRatesNMEA[messageNumber]; // Setting is in Hz
+            bool isGpgga = (strcmp(umMessagesNMEA[messageNumber].msgTextName, "GPGGA") == 0);
+            if (settings.enableUnicoreBinaryRawMessages && !isGpgga)
+            {
+                // Limit to 0.2Hz (5 second intervals) when raw messages enabled
+                if (nmeaRateHz > 0.2)
+                    nmeaRateHz = 0.2;
+            }
+
+            // Convert Hz to seconds (period) for UM980 library
+            // UM980 expects seconds: 5 seconds = 0.2Hz, 1 second = 1Hz, 0.2 seconds = 5Hz
+            float nmeaRateSec = 1.0 / nmeaRateHz;
+
+            if (settings.debugGnss)
+                systemPrintf("Setting %s rate: %.2f Hz -> %.2f sec%s\r\n",
+                            umMessagesNMEA[messageNumber].msgTextName,
+                            nmeaRateHz, nmeaRateSec,
+                            settings.enableUnicoreBinaryRawMessages ? " (throttled)" : "");
+
             // If any one of the commands fails, report failure overall
             response &= _um980->setNMEAPortMessage(umMessagesNMEA[messageNumber].msgTextName, "COM3",
-                                                   settings.um980MessageRatesNMEA[messageNumber]);
+                                                   nmeaRateSec);
 
             if (response == false && settings.debugGnss)
                 systemPrintf("Enable NMEA failed at messageNumber %d %s.\r\n", messageNumber,
@@ -538,10 +584,13 @@ bool GNSS_UM980::enableNMEA()
     if (pointPerfectServiceUsesKeys())
     {
         // Force on any messages that are needed for PPL
+        // Use reduced rate if raw messages are enabled to prevent buffer overflow
+        // Note: UM980 rate parameter is in seconds, not Hz (5.0 = 5 seconds = 0.2Hz)
+        float pplRate = settings.enableUnicoreBinaryRawMessages ? 5.0 : 1.0;
         if (gpggaEnabled == false)
-            response &= _um980->setNMEAPortMessage("GPGGA", "COM3", 1);
+            response &= _um980->setNMEAPortMessage("GPGGA", "COM3", pplRate);
         if (gpzdaEnabled == false)
-            response &= _um980->setNMEAPortMessage("GPZDA", "COM3", 1);
+            response &= _um980->setNMEAPortMessage("GPZDA", "COM3", pplRate);
     }
 
     return (response);
@@ -631,6 +680,100 @@ bool GNSS_UM980::enableRTCMRover()
         if (rtcm1046Enabled == false)
             response &= _um980->setRTCMPortMessage("RTCM1046", "COM3", 1);
     }
+
+    return (response);
+}
+
+//----------------------------------------
+// Turn on Unicore binary raw data messages on COM3
+//----------------------------------------
+bool GNSS_UM980::enableUnicoreBinaryRawMessages()
+{
+    if (online.gnss == false)
+    {
+        systemPrintln("GNSS not online");
+        return (false);
+    }
+
+    bool response = true;
+
+    if (settings.debugGnss)
+        systemPrintln("Enabling Unicore binary raw messages...");
+
+    // Enable observation data at 1Hz (every 1 seconds)
+    if (_um980->sendCommand("OBSVMB COM3 1") == false)
+    {
+        if (settings.debugGnss)
+            systemPrintln("Enable OBSVMB failed");
+        response &= false;
+    }
+
+    // Enable best navigation solution at 1Hz
+    if (_um980->sendCommand("BESTNAVB COM3 1") == false)
+    {
+        if (settings.debugGnss)
+            systemPrintln("Enable BESTNAVB failed");
+        response &= false;
+    }
+
+    // Enable receiver time at 1Hz
+    if (_um980->sendCommand("RECTIMEB COM3 1") == false)
+    {
+        if (settings.debugGnss)
+            systemPrintln("Enable RECTIMEB failed");
+        response &= false;
+    }
+
+    // Enable receiver time at 1Hz
+    if (_um980->sendCommand("OBSVMCMPB COM3 1") == false)
+    {
+        if (settings.debugGnss)
+            systemPrintln("Enable OBSVMCMPB failed");
+        response &= false;
+    }
+
+    if (settings.includeEphemeris == true) {
+        if (settings.debugGnss)
+            systemPrintln("Enabling ephemeris messages at 30 second intervals using ONTIME");
+
+        // Enable GPS ephemeris every 30 seconds using ONTIME trigger
+        // ONTIME means "output when new data available, but no more than once per X seconds"
+        if (_um980->sendCommand("GPSEPHB COM3 30") == false)
+        {
+            if (settings.debugGnss)
+                systemPrintln("Enable GPSEPHB failed");
+            response &= false;
+        }
+
+        // Enable GLONASS ephemeris every 30 seconds
+        if (_um980->sendCommand("GLOEPHB COM3 30") == false)
+        {
+            if (settings.debugGnss)
+                systemPrintln("Enable GLOEPHB failed");
+            response &= false;
+        }
+
+        // Enable BeiDou ephemeris every 30 seconds
+        if (_um980->sendCommand("BDSEPHB COM3 30") == false)
+        {
+            if (settings.debugGnss)
+                systemPrintln("Enable BDSEPHB failed");
+            response &= false;
+        }
+
+        // Enable Galileo ephemeris every 30 seconds
+        if (_um980->sendCommand("GALEPHB COM3 30") == false)
+        {
+            if (settings.debugGnss)
+                systemPrintln("Enable GALEPHB failed");
+            response &= false;
+        }
+    }
+
+    if (response)
+            systemPrintln("Unicore binary raw messages enabled");
+        else
+            systemPrintln("Failed to enable all Unicore binary raw messages");
 
     return (response);
 }
@@ -1331,6 +1474,7 @@ void GNSS_UM980::menuMessages()
         systemPrintln("1) Set NMEA Messages");
         systemPrintln("2) Set Rover RTCM Messages");
         systemPrintln("3) Set Base RTCM Messages");
+        systemPrintln("4) Configure Raw Data");
 
         systemPrintln("10) Reset to Defaults");
         systemPrintln("11) Reset to PPP Logging (NMEAx5 / RTCMx4 - 30 second decimation)");
@@ -1346,6 +1490,8 @@ void GNSS_UM980::menuMessages()
             menuMessagesSubtype(settings.um980MessageRatesRTCMRover, "RTCMRover");
         else if (incoming == 3)
             menuMessagesSubtype(settings.um980MessageRatesRTCMBase, "RTCMBase");
+        else if (incoming == 4)
+            menuRawData();
         else if (incoming == 10)
         {
             // Reset rates to defaults
@@ -1397,6 +1543,52 @@ void GNSS_UM980::menuMessages()
             }
         }
 
+        else if (incoming == INPUT_RESPONSE_GETNUMBER_EXIT)
+            break;
+        else if (incoming == INPUT_RESPONSE_GETNUMBER_TIMEOUT)
+            break;
+        else
+            printUnknown(incoming);
+    }
+
+    clearBuffer(); // Empty buffer of any newline chars
+
+    // Apply these changes at menu exit
+    if (inRoverMode())
+        restartRover = true;
+    else
+        restartBase = true;
+}
+
+//----------------------------------------
+// Configure UM980 raw data output settings
+// Controls binary message output and ephemeris inclusion
+//----------------------------------------
+void GNSS_UM980::menuRawData()
+{
+    while (1)
+    {
+        systemPrintln();
+        systemPrintln("Menu: UM980 Raw Data");
+
+        systemPrint("1) Enable Unicore Binary Raw Messages: ");
+        systemPrintln(settings.enableUnicoreBinaryRawMessages ? "Enabled" : "Disabled");
+
+        systemPrint("2) Include Ephemeris in Raw Messages: ");
+        systemPrintln(settings.includeEphemeris ? "Enabled" : "Disabled");
+
+        systemPrintln("x) Exit");
+
+        int incoming = getUserInputNumber(); // Returns EXIT, TIMEOUT, or long
+
+        if (incoming == 1)
+        {
+            settings.enableUnicoreBinaryRawMessages ^= 1;
+        }
+        else if (incoming == 2)
+        {
+            settings.includeEphemeris ^= 1;
+        }
         else if (incoming == INPUT_RESPONSE_GETNUMBER_EXIT)
             break;
         else if (incoming == INPUT_RESPONSE_GETNUMBER_TIMEOUT)

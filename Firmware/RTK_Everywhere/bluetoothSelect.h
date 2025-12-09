@@ -126,7 +126,8 @@ class BTClassicSerial : public virtual BTSerialInterface, public BluetoothSerial
 
     void enableSSP(bool inputCapability, bool outputCapability)
     {
-        BluetoothSerial::enableSSP(inputCapability, outputCapability);
+        // Note: enableSSP not available in pioarduino ESP32 3.x fork
+        // BluetoothSerial::enableSSP(inputCapability, outputCapability);
     }
 
     bool aclConnected()
@@ -146,7 +147,8 @@ class BTClassicSerial : public virtual BTSerialInterface, public BluetoothSerial
 
     void onConfirmRequest(void (*cbPtr)(uint32_t))
     {
-        BluetoothSerial::onConfirmRequest(cbPtr);
+        // Note: onConfirmRequest not available in pioarduino ESP32 3.x fork
+        // BluetoothSerial::onConfirmRequest(cbPtr);
     }
 
     void confirmReply(bool confirm)
@@ -156,7 +158,8 @@ class BTClassicSerial : public virtual BTSerialInterface, public BluetoothSerial
 
     void respondPasskey(uint32_t passkey)
     {
-        BluetoothSerial::respondPasskey(passkey);
+        // Note: respondPasskey not available in pioarduino ESP32 3.x fork
+        // BluetoothSerial::respondPasskey(passkey);
     }
 
     void deleteAllBondedDevices()

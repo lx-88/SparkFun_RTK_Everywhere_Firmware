@@ -305,6 +305,9 @@ public:
   // Control the messages that get broadcast over Bluetooth and logged (if enabled)
   virtual void menuMessages();
 
+  // Control raw data output settings (receiver-specific)
+  virtual void menuRawData();
+
   // Print the module type and firmware version
   virtual void printModuleInfo();
 

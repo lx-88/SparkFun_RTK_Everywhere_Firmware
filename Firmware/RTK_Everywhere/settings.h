@@ -846,6 +846,8 @@ struct Settings
     // GNSS
     muxConnectionType_e dataPortChannel = MUX_GNSS_UART; // Mux default to GNSS UART
     bool debugGnss = false;                          // Turn on to display GNSS library debug messages
+    bool enableUnicoreBinaryRawMessages = false;     // Control if enableUnicoreBinaryRawMessages() is executed
+    bool includeEphemeris = false;                   // Control ephemeris messages within enableUnicoreBinaryRawMessages()
     bool enablePrintPosition = false;
     uint16_t measurementRateMs = 250;       // Elapsed ms between GNSS measurements. 25ms to 65535ms. Default 4Hz.
     uint16_t navigationRate =
@@ -1554,6 +1556,8 @@ const RTK_Settings_Entry rtkSettingsEntries[] =
 
     // GNSS Receiver
     { 0, 0, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _bool,     0, & settings.debugGnss, "debugGnss", nullptr, },
+    { 0, 0, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _bool,     0, & settings.enableUnicoreBinaryRawMessages, "enableUnicoreBinaryRawMessages", nullptr, },
+    { 0, 0, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _bool,     0, & settings.includeEphemeris, "includeEphemeris", nullptr, },
     { 0, 0, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _bool,     0, & settings.enablePrintPosition, "enablePrintPosition", nullptr, },
     { 0, 1, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _uint16_t, 0, & settings.measurementRateMs, "measurementRateMs", nullptr, },
     { 0, 1, 0, 1, 1, 1, 1, 1, 1, ALL, 1, _uint16_t, 0, & settings.navigationRate, "navigationRate", nullptr, },

@@ -1,5 +1,8 @@
 #ifdef COMPILE_POINTPERFECT_LIBRARY
 
+// Forward declaration (Arduino IDE does this automatically, but PlatformIO doesn't)
+const char *PPLReturnStatusToStr(ePPL_ReturnStatus status);
+
 // Feed the PointPerfect Library with NMEA+RTCM
 void updatePplTask(void *e)
 {

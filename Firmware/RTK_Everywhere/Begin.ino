@@ -1178,6 +1178,31 @@ void beginGnssUart()
     size_t length;
     TaskHandle_t taskHandle;
 
+    // Increase buffer size for UM980 binary raw messages which can be >3KB each
+    // Must accommodate OBSVMB + ephemeris + NMEA messages concurrently
+    // Update settings.gnssHandlerBufferSize so all ring buffer code uses the correct size
+    // RTK Torch has 2MB PSRAM - use larger buffers for better safety margin
+    // IMPORTANT: Always allocate large buffers for UM980 regardless of enableUnicoreBinaryRawMessages setting
+    // so users can enable/disable raw messages without rebooting
+    if (present.gnss_um980)
+    {
+        if (productVariant == RTK_TORCH)
+        {
+            // RTK Torch-specific: larger buffers using abundant PSRAM
+            // Size for worst case (ephemeris enabled) so user can toggle without reboot
+            settings.gnssHandlerBufferSize = 32 * 1024; // 32KB: OBSVMB(3.5KB) + ephemeris(2KB) + NMEA(0.5KB) + RTCM(2KB) + margin
+        }
+        else
+        {
+            // Other platforms: size for worst case (ephemeris enabled)
+            settings.gnssHandlerBufferSize = 20 * 1024; // 20KB: enough for OBSVMB + ephemeris + NMEA + RTCM
+        }
+
+        if (settings.debugGnss)
+            systemPrintf("Ring buffer size: %d bytes for UM980 binary raw messages\r\n",
+                         settings.gnssHandlerBufferSize);
+    }
+
     // Determine the length of data to be retained in the ring buffer
     // after discarding the oldest data
     length = settings.gnssHandlerBufferSize;

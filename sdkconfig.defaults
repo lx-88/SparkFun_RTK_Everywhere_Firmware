@@ -1,0 +1,17 @@
+# ESP-IDF SDK Configuration Defaults for RTK Everywhere
+# These settings reduce IRAM usage to fit within the 128KB limit
+
+# WiFi - Move code from IRAM to Flash to save ~6KB IRAM
+CONFIG_ESP32_WIFI_IRAM_OPT=n
+CONFIG_ESP32_WIFI_RX_IRAM_OPT=n
+CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE=n
+
+# Bluetooth - Use external memory allocation
+CONFIG_BT_NIMBLE_MEM_ALLOC_MODE_EXTERNAL=y
+
+# Reduce log verbosity in IRAM
+CONFIG_LOG_DEFAULT_LEVEL_NONE=y
+CONFIG_LOG_MAXIMUM_LEVEL_INFO=y
+
+# Event loop optimizations
+CONFIG_ESP_EVENT_POST_FROM_IRAM_ISR=n

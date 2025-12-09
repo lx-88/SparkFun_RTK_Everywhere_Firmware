@@ -77,6 +77,16 @@ bool GNSS::supportsAntennaShortOpen()
     return false;
 }
 
+//----------------------------------------
+// Configure raw data output settings
+// Default implementation for receivers that don't support this feature
+//----------------------------------------
+void GNSS::menuRawData()
+{
+    // No-op for receivers that don't support raw data configuration
+    // UM980 overrides this with its own implementation
+}
+
 // Periodically push GGA sentence over NTRIP Client, to Caster, if enabled
 // We must not push to the Caster while we are reading data from the Caster
 // See #695

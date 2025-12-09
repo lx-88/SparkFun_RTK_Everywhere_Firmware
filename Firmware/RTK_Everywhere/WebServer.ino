@@ -429,8 +429,8 @@ static void handleFirmwareFileUpload()
         // Check 'bin' extension
         if (strcmp(BIN_EXT, &fname[strlen(fname) - strlen(BIN_EXT)]) == 0)
         {
-            // Check for 'RTK_Everywhere_Firmware' start of file name
-            if (strncmp(fname, BIN_HEADER, strlen(BIN_HEADER)) == 0)
+            // Check for 'RTK_Everywhere_Firmware' start of file name (skip leading '/')
+            if (strncmp(&fname[1], BIN_HEADER, strlen(BIN_HEADER)) == 0)
             {
                 // Begin update process
                 if (!Update.begin(UPDATE_SIZE_UNKNOWN))
@@ -589,9 +589,8 @@ void handleUpload()
 
         systemPrintln(logmessage);
 
-        // Redirect to "/"
-        webServer->sendHeader("Location", "/");
-        webServer->send(302, "text/plain", "");
+        // Response is sent by the POST handler lambda in webServer->on()
+        // Do not send response here - it causes conflicts
     }
 }
 

@@ -178,11 +178,11 @@ patch:
 	touch   $(PATCH_SRC_PATH)libmbedcrypto.a
 	touch   $(PATCH_SRC_PATH)libmbedx509.a
 
-#DEBUG_LEVEL=none
+DEBUG_LEVEL=none
 #DEBUG_LEVEL=error
 #DEBUG_LEVEL=warn
 #DEBUG_LEVEL=info
-DEBUG_LEVEL=debug
+#DEBUG_LEVEL=debug
 #DEBUG_LEVEL=verbose
 
 ENABLE_DEVELOPER=false

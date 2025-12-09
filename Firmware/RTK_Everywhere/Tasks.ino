@@ -361,9 +361,30 @@ void gnssReadTask(void *e)
         systemPrintln("Task gnssReadTask started");
 
     // Initialize the main parser
+    // Use larger buffer for UM980 to handle large OBSVMB messages (>3000 bytes)
+    // When ephemeris messages are enabled, need even larger buffer for concurrent OBSVMB + ephemeris messages
+    // Buffer must also accommodate concurrent NMEA messages (especially GSV) on the same COM port
+    // RTK Torch has 2MB PSRAM - use larger buffers for better safety margin
+    // IMPORTANT: Always allocate large buffers for UM980 regardless of enableUnicoreBinaryRawMessages setting
+    // so users can enable/disable raw messages without rebooting
+    size_t rtkParseBufferSize = 3000; // Default for platforms without binary raw
+    if (present.gnss_um980)
+    {
+        if (productVariant == RTK_TORCH)
+        {
+            // RTK Torch-specific: larger parse buffer using abundant PSRAM
+            // Size for worst case (ephemeris enabled) so user can toggle without reboot
+            rtkParseBufferSize = 24 * 1024; // 24KB: holds OBSVMB(3.5KB) + ephemeris(2KB) + NMEA + parser overhead
+        }
+        else
+        {
+            // Other platforms: conservative sizing for worst case
+            rtkParseBufferSize = 16 * 1024; // 16KB: enough for OBSVMB + ephemeris + NMEA
+        }
+    }
     rtkParse = sempBeginParser(parserTable, parserCount, parserNames, parserNameCount,
                                0,                   // Scratchpad bytes
-                               3000,                // Buffer length
+                               rtkParseBufferSize,  // Buffer length
                                processUart1Message, // eom Call Back
                                "rtkParse");         // Parser Name
     if (!rtkParse)
@@ -989,13 +1010,14 @@ void processUart1Message(SEMP_PARSE_STATE *parse, uint16_t type)
         parse->length = 0;
     }
 
-    // Suppress binary messages from UM980. Not needed by end GIS apps.
-    if (type == RTK_UNICORE_BINARY_PARSER_INDEX)
-    {
-        // Erase buffer
-        parse->buffer[0] = 0;
-        parse->length = 0;
-    }
+    // FIXME: Re-enabled binary messages from UM980 for raw data logging
+    // // Suppress binary messages from UM980. Not needed by end GIS apps.
+    // if (type == RTK_UNICORE_BINARY_PARSER_INDEX)
+    // {
+    //     // Erase buffer
+    //     parse->buffer[0] = 0;
+    //     parse->length = 0;
+    // }
 
     // If parse->length is zero, we should exit now.
     // Previously, the code would continue past here and fill rbOffsetArray with 'empty' entries.
